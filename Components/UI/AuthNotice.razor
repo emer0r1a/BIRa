@@ -1,0 +1,13 @@
+<div class="text-center" role="status">
+    <span class="mx-auto grid h-16 w-16 place-items-center rounded-full bg-[#ADEE68] text-3xl text-[#001F3E]" aria-hidden="true">@Icon</span>
+    <h1 class="mt-6 text-3xl font-extrabold leading-tight tracking-tighter">@Title</h1>
+    <p class="mt-3 text-[#5B6B7F]">@ChildContent</p>
+    <div class="mt-8 space-y-3">@Actions</div>
+</div>
+
+@code {
+    [Parameter] public string Icon { get; set; } = "✓";
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public RenderFragment? Actions { get; set; }
+}

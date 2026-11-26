@@ -1,0 +1,21 @@
+<button type="submit" disabled="@Busy"
+        class="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#001F3E] to-[#0F69C5] px-6 py-3.5 font-bold text-white transition hover:brightness-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F69C5] disabled:cursor-not-allowed disabled:opacity-70">
+    @if (Busy)
+    {
+        <svg viewBox="0 0 24 24" class="h-5 w-5 animate-spin" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity="0.3" stroke-width="3" />
+            <path d="M21 12a9 9 0 0 0-9-9" stroke="#ADEE68" stroke-width="3" stroke-linecap="round" />
+        </svg>
+        @BusyText
+    }
+    else
+    {
+        @Text
+    }
+</button>
+
+@code {
+    [Parameter, EditorRequired] public string Text { get; set; } = "";
+    [Parameter] public string BusyText { get; set; } = "Please wait...";
+    [Parameter] public bool Busy { get; set; }
+}

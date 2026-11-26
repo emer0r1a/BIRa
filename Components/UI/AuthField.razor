@@ -1,0 +1,32 @@
+<div>
+    <div class="flex items-center justify-between gap-3">
+        <label for="@InputId" class="text-sm font-bold">@Label</label>
+        @Aside
+    </div>
+    <div class="mt-1.5">
+        @ChildContent
+        @if (!string.IsNullOrEmpty(Hint))
+        {
+            <p class="mt-1.5 text-xs text-[#5B6B7F]">@Hint</p>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Shared Tailwind classes for text inputs and selects on the auth pages.</summary>
+    public const string InputClass =
+        "block w-full rounded-2xl border border-[#E2E8F0] bg-white px-4 py-3 text-[15px] font-medium text-[#001F3E] " +
+        "placeholder:text-[#8A9BB0] transition focus:border-[#0F69C5] focus:outline-none focus:ring-4 focus:ring-[#0F69C5]/15";
+
+    [Parameter, EditorRequired] public string Label { get; set; } = "";
+
+    /// <summary>The id of the input inside, so the label points at it.</summary>
+    [Parameter, EditorRequired] public string InputId { get; set; } = "";
+
+    [Parameter] public string? Hint { get; set; }
+
+    /// <summary>Small content on the right of the label, e.g. a "Forgot password?" link.</summary>
+    [Parameter] public RenderFragment? Aside { get; set; }
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
