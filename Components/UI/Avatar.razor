@@ -1,0 +1,21 @@
+<span class="grid shrink-0 place-items-center rounded-full border-2 border-white font-extrabold @Class" aria-hidden="true">@Initials</span>
+
+@code {
+    /// <summary>Business or person name; the first letters become the initials.</summary>
+    [Parameter, EditorRequired] public string Name { get; set; } = "?";
+
+    /// <summary>Size and colour utilities, e.g. "h-10 w-10 text-sm bg-[#ADEE68] text-[#001F3E]".</summary>
+    [Parameter] public string Class { get; set; } = "h-10 w-10 text-sm bg-[#ADEE68] text-[#001F3E]";
+
+    private string Initials
+    {
+        get
+        {
+            var parts = Name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length == 0) return "?";
+            return parts.Length == 1
+                ? parts[0][..1].ToUpperInvariant()
+                : (parts[0][..1] + parts[^1][..1]).ToUpperInvariant();
+        }
+    }
+}
