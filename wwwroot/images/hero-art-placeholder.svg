@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 540 440" role="img" aria-label="Header art placeholder">
+  <rect x="2" y="2" width="536" height="436" rx="28" fill="#FFFFFF" fill-opacity="0.45" stroke="#001F3E" stroke-opacity="0.35" stroke-width="2.5" stroke-dasharray="10 9"/>
+  <g transform="translate(246 140)" fill="none" stroke="#2B4A6B" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="0" y="0" width="48" height="40" rx="7"/><circle cx="14" cy="14" r="4"/><path d="M0 32l14-13 10 9 8-7 16 13"/>
+  </g>
+  <text x="270" y="236" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="20" font-weight="800" fill="#001F3E">Header art placeholder</text>
+  <text x="270" y="266" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="14" fill="#2B4A6B">Replace with your illustration</text>
+  <text x="270" y="288" text-anchor="middle" font-family="Plus Jakarta Sans, Arial, sans-serif" font-size="14" fill="#2B4A6B">Suggested: 1080 x 880 PNG, transparent background</text>
+</svg>

@@ -1,0 +1,406 @@
+@page "/"
+
+<PageTitle>BIRa | Your BIR Tax Compliance Assistant</PageTitle>
+
+<HeadContent>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+</HeadContent>
+
+<div id="top" class="shrink-0 min-h-screen bg-[#F6F9FC] text-[#001F3E] font-['Plus_Jakarta_Sans',ui-sans-serif,system-ui,sans-serif] antialiased selection:bg-[#ADEE68]">
+
+    @* ============ HEADER ============ *@
+    <header class="sticky top-0 z-50 bg-[#F6F9FC]/80 backdrop-blur-lg">
+        <div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8">
+            <a href="/" class="flex items-center gap-2.5 rounded-lg focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#0F69C5]">
+                <BiraLogo Class="h-8 w-8" />
+                <span class="text-2xl font-extrabold tracking-tighter">BIRa</span>
+            </a>
+
+            <nav class="hidden items-center gap-1 rounded-full border border-[#E2E8F0] bg-white p-1 md:flex" aria-label="Main">
+                @foreach (var (label, href) in NavLinks)
+                {
+                    <a href="@href" class="rounded-full px-4 py-2 text-sm font-semibold text-[#5B6B7F] transition hover:bg-[#EEF3F9] hover:text-[#001F3E] focus-visible:bg-[#EEF3F9]">@label</a>
+                }
+            </nav>
+
+            <div class="flex items-center gap-2">
+                <a href="/login" class="hidden rounded-full px-4 py-2 text-sm font-bold transition hover:bg-[#EEF3F9] sm:inline-block">Log in</a>
+                <a href="@GetStartedHref" class="hidden items-center gap-3 rounded-full bg-gradient-to-r from-[#001F3E] to-[#0F69C5] py-1.5 pl-5 pr-1.5 text-sm font-bold text-white transition hover:brightness-110 sm:inline-flex">
+                    Get started
+                    <span class="grid h-8 w-8 place-items-center rounded-full bg-[#ADEE68] font-extrabold text-[#001F3E]" aria-hidden="true">↗</span>
+                </a>
+
+                <button type="button" class="grid h-11 w-11 place-items-center rounded-full border border-[#E2E8F0] bg-white md:hidden"
+                        aria-label="Toggle menu" aria-expanded="@(menuOpen ? "true" : "false")" @onclick="() => menuOpen = !menuOpen">
+                    <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
+                        @if (menuOpen)
+                        {
+                            <path d="M6 6l12 12M18 6L6 18" />
+                        }
+                        else
+                        {
+                            <path d="M4 7h16M4 12h16M4 17h16" />
+                        }
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        @if (menuOpen)
+        {
+            <nav class="mx-3 mb-3 rounded-3xl border border-[#E2E8F0] bg-white p-3 shadow-lg md:hidden" aria-label="Mobile">
+                <ul class="flex flex-col gap-1">
+                    @foreach (var (label, href) in NavLinks)
+                    {
+                        <li><a href="@href" class="block rounded-2xl px-4 py-3 font-semibold hover:bg-[#EEF3F9]" @onclick="() => menuOpen = false">@label</a></li>
+                    }
+                    <li><a href="/login" class="block rounded-2xl px-4 py-3 font-semibold hover:bg-[#EEF3F9]" @onclick="() => menuOpen = false">Log in</a></li>
+                    <li><a href="@GetStartedHref" class="mt-1 block rounded-2xl bg-[#0F69C5] px-4 py-3 text-center font-bold text-white" @onclick="() => menuOpen = false">Get started</a></li>
+                </ul>
+            </nav>
+        }
+    </header>
+
+    <main>
+        @* ============ HERO ============ *@
+        <section class="px-3 pt-2 sm:px-6 lg:px-8">
+            <div class="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] border border-[#E2E8F0] bg-gradient-to-b from-[#EAF9D2] via-[#F6FBEE] to-white px-5 pt-10 sm:px-10 lg:px-14 lg:pt-14">
+                <div class="pointer-events-none absolute -left-24 -top-32 h-96 w-96 rounded-full bg-[#ADEE68]/70 blur-3xl" aria-hidden="true"></div>
+                <div class="pointer-events-none absolute -right-24 -top-24 h-96 w-96 rounded-full bg-[#1FBCCF]/30 blur-3xl" aria-hidden="true"></div>
+                <div class="pointer-events-none absolute -left-32 -top-44 hidden h-[34rem] w-[34rem] rounded-full border-2 border-[#ADEE68] lg:block" aria-hidden="true"></div>
+
+                <div class="relative flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
+                    <h1 class="max-w-4xl text-[2.9rem] font-extrabold leading-[0.95] tracking-tighter sm:text-7xl xl:text-[6.5rem]">
+                        Turn complex
+                        <span class="mt-1 inline-block -rotate-1 rounded-2xl bg-[#ADEE68] px-3 pb-1">BIR filings</span>
+                        into simple steps
+                    </h1>
+                    <p class="max-w-[12rem] text-[15px] font-bold leading-snug lg:mt-3">
+                        Make every filing a breeze with BIRa.
+                        <span class="mt-1 block font-semibold text-[#2C7A00]">No jargon. No missed dates.</span>
+                    </p>
+                </div>
+
+                <div class="relative mt-8 grid items-end gap-8 lg:grid-cols-[250px_1fr_310px] lg:gap-6">
+                    <div class="order-2 flex flex-col gap-5 pb-2 lg:order-1 lg:pb-10">
+                        @foreach (var stat in LandingData.HeroStats)
+                        {
+                            <div>
+                                <p class="text-4xl font-extrabold leading-none tracking-tighter">@stat.Value<span class="text-[#5DB32B]">@stat.Suffix</span></p>
+                                <p class="mt-1 text-sm text-[#2B4A6B]">@stat.Label</p>
+                            </div>
+                        }
+                        <a href="@GetStartedHref" class="mt-1 inline-flex w-fit items-center gap-3 rounded-full bg-gradient-to-r from-[#001F3E] to-[#0F69C5] py-1.5 pl-5 pr-1.5 text-sm font-bold text-white transition hover:brightness-110">
+                            See your deadlines
+                            <span class="grid h-8 w-8 place-items-center rounded-full bg-[#ADEE68] font-extrabold text-[#001F3E]" aria-hidden="true">↗</span>
+                        </a>
+                    </div>
+
+                    <div class="relative order-1 lg:order-2">
+                        <img src="images/hero-art2.png" alt="Header art placeholder" class="mx-auto block w-full max-w-xl" />
+                    </div>
+
+                    <div class="order-3 pb-6 lg:pb-10">
+                        <ChatPreview />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        @* ============ FORM STRIP ============ *@
+        <section class="py-8" aria-label="Forms BIRa explains">
+            <div class="overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+                <div class="flex w-max animate-[marquee_34s_linear_infinite] motion-reduce:animate-none">
+                    @foreach (var copy in new[] { 0, 1 })
+                    {
+                        <ul class="flex shrink-0 items-baseline gap-12 pr-12" aria-hidden="@(copy == 1 ? "true" : "false")">
+                            @foreach (var (formCode, formLabel) in LandingData.Forms)
+                            {
+                                <li class="whitespace-nowrap text-2xl font-extrabold tracking-tight text-[#5B6B7F]">@formCode<span class="ml-2 text-sm font-semibold opacity-70">@formLabel</span></li>
+                            }
+                        </ul>
+                    }
+                </div>
+            </div>
+        </section>
+
+        @* ============ PURPOSE ============ *@
+        <section id="about" class="mx-auto max-w-7xl px-4 pt-6 sm:px-6 lg:px-8">
+            <div class="grid gap-5 lg:grid-cols-2">
+                <article class="relative flex min-h-[22rem] flex-col justify-between overflow-hidden rounded-[2rem] bg-[#ADEE68] p-7 text-[#001F3E]">
+                    <div class="pointer-events-none absolute -right-10 -top-10 h-64 w-64 rounded-full bg-white/40" aria-hidden="true"></div>
+                    <div class="pointer-events-none absolute right-16 top-14 h-32 w-32 rounded-full bg-white/50" aria-hidden="true"></div>
+                    <span class="relative w-fit rounded-full bg-white/75 px-3 py-1 text-xs font-bold">Our vision</span>
+                    <div class="relative">
+                        <h2 class="max-w-md text-3xl font-extrabold leading-[1.05] tracking-tight sm:text-4xl lg:text-[2.6rem]">A world where taxes are no longer a burden.</h2>
+                        <p class="mt-3 max-w-sm text-sm leading-relaxed">We turn BIR requirements into short, clear steps so freelancers and small business owners can file on time and keep their peace of mind.</p>
+                    </div>
+                </article>
+
+                <article class="relative flex min-h-[22rem] flex-col justify-between overflow-hidden rounded-[2rem] bg-[#001F3E] p-7 text-white">
+                    <div class="pointer-events-none absolute -right-12 -top-12 h-72 w-72 rounded-full bg-[#ADEE68]" aria-hidden="true"></div>
+                    <div class="pointer-events-none absolute right-10 top-16 h-32 w-32 rounded-full bg-[#1FBCCF]" aria-hidden="true"></div>
+                    <span class="relative w-fit rounded-full bg-white px-3 py-1 text-xs font-bold text-[#001F3E]">Our promise</span>
+                    <div class="relative">
+                        <h2 class="max-w-md text-3xl font-extrabold leading-[1.05] tracking-tight sm:text-4xl lg:text-[2.6rem]">Clear, structured and <span class="text-[#ADEE68]">jargon-free.</span></h2>
+                        <p class="mt-3 max-w-sm text-sm leading-relaxed text-[#C5D3E4]">Every guide, reminder and calculator is written for people who never studied tax, and meant to be checked against official issuances.</p>
+                    </div>
+                </article>
+            </div>
+
+            <dl class="mt-8 grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-5">
+                @foreach (var stat in LandingData.Milestones)
+                {
+                    <div class="flex flex-col-reverse">
+                        <dt class="mt-1 text-sm text-[#5B6B7F]">@stat.Label</dt>
+                        <dd class="text-4xl font-extrabold leading-none tracking-tighter sm:text-5xl">@stat.Value<span class="text-[#5DB32B]">@stat.Suffix</span></dd>
+                    </div>
+                }
+            </dl>
+        </section>
+
+        @* ============ FEATURES ============ *@
+        <section id="features" class="mx-auto max-w-7xl px-4 pt-24 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <p class="text-sm font-bold uppercase tracking-widest text-[#0F69C5]">Everything in one place</p>
+                <h2 class="mt-3 text-4xl font-extrabold leading-[1] tracking-tighter sm:text-6xl">Six tools. One unified workspace for BIR compliance.</h2>
+            </div>
+
+            <div class="mt-10 grid gap-5 lg:grid-cols-6">
+
+                <FeatureCard Tag="Deadlines and reminders" Title="Never miss a filing date" Class="bg-[#001F3E] text-white lg:col-span-4"
+                             Blurb="A countdown and calendar for 1701Q, 2551Q, 2550Q and more, already adjusted for weekends, holidays and advisories.">
+                    <div class="grid gap-3 sm:grid-cols-[auto_1fr]">
+                        <div class="rounded-2xl bg-white/10 p-4">
+                            <p class="text-xs text-[#A9BBD1]">2551Q due in</p>
+                            <div class="mt-2 flex gap-2 text-center">
+                                @foreach (var (num, unit) in new[] { ("12", "days"), ("04", "hrs"), ("31", "mins") })
+                                {
+                                    <div class="w-14 rounded-xl bg-white/10 py-2"><p class="text-2xl font-extrabold leading-none">@num</p><p class="mt-1 text-[11px] text-[#A9BBD1]">@unit</p></div>
+                                }
+                            </div>
+                        </div>
+                        <ul class="space-y-2">
+                            @foreach (var d in Deadlines)
+                            {
+                                <li class="flex items-center gap-3 rounded-xl bg-white/10 px-3 py-2">
+                                    <span class="w-14 shrink-0 text-xs font-bold text-[#A9BBD1]">@d.Date</span>
+                                    <span class="flex-1 text-sm font-semibold">@d.Code <span class="hidden font-normal text-[#A9BBD1] sm:inline">· @d.Name</span></span>
+                                    <span class="rounded-full px-2.5 py-0.5 text-xs font-bold @d.BadgeClass">@d.Status</span>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </FeatureCard>
+
+                <FeatureCard Tag="Multi-business" Title="Every registration, one switcher" Class="bg-[#ADEE68] text-[#001F3E] lg:col-span-2"
+                             Blurb="Keep each business’s tax regime, tax type and RDO in its own workspace.">
+                    <div class="space-y-3">
+                        <div class="flex -space-x-2">
+                            <Avatar Name="Maria Reyes" Class="h-11 w-11 text-sm bg-[#001F3E] text-white" />
+                            <Avatar Name="Kape ni Ate Joy" Class="h-11 w-11 text-sm bg-white text-[#001F3E]" />
+                            <Avatar Name="JR Print Hub" Class="h-11 w-11 text-sm bg-[#1FBCCF] text-[#001F3E]" />
+                        </div>
+                        <div class="flex flex-wrap gap-2 text-xs font-bold">
+                            <span class="rounded-full bg-white px-3 py-1">8% flat tax</span>
+                            <span class="rounded-full bg-white px-3 py-1">Graduated + OSD</span>
+                            <span class="rounded-full bg-white px-3 py-1">Percentage Tax</span>
+                            <span class="rounded-full bg-white px-3 py-1">VAT</span>
+                        </div>
+                    </div>
+                </FeatureCard>
+
+                <FeatureCard Tag="Guides and checklists" Title="Step-by-step prep" Class="bg-white text-[#001F3E] lg:col-span-2"
+                             Blurb="Tick off each step before you file. Required documents are tagged.">
+                    <div>
+                        <div class="flex items-center justify-between text-xs font-bold"><span>2 of 5 done</span><span class="rounded-full bg-[#ADEE68] px-2.5 py-0.5">40%</span></div>
+                        <div class="mt-2 h-2 overflow-hidden rounded-full bg-[#EEF3F9]"><div class="h-full w-2/5 rounded-full bg-gradient-to-r from-[#ADEE68] to-[#1FBCCF]"></div></div>
+                        <ul class="mt-4 space-y-2 text-sm">
+                            <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-md bg-[#ADEE68] text-xs font-extrabold" aria-hidden="true">✓</span><span class="text-[#5B6B7F] line-through">Gather receipts</span></li>
+                            <li class="flex items-center gap-2.5"><span class="grid h-5 w-5 place-items-center rounded-md bg-[#ADEE68] text-xs font-extrabold" aria-hidden="true">✓</span><span class="text-[#5B6B7F] line-through">Total gross receipts</span></li>
+                            <li class="flex items-center gap-2.5"><span class="h-5 w-5 rounded-md border-2 border-[#E2E8F0]" aria-hidden="true"></span><span class="font-semibold">Collect Form 2307</span><span class="rounded-md bg-[#1FBCCF]/20 px-1.5 py-0.5 text-[11px] font-bold text-[#0A7B8A]">BIR 2307</span></li>
+                        </ul>
+                    </div>
+                </FeatureCard>
+
+                <FeatureCard Tag="Estimator and penalties" Title="Know what you owe" Class="bg-white text-[#001F3E] lg:col-span-2"
+                             Blurb="Preview tax, then see surcharge, interest and compromise penalty if you file late.">
+                    <div class="rounded-2xl bg-gradient-to-br from-[#001F3E] to-[#0B3B73] p-4 text-white">
+                        <p class="text-xs text-[#A9BBD1]">Estimated tax (8% flat)</p>
+                        <p class="mt-1 text-3xl font-extrabold leading-none tracking-tighter">₱28,000</p>
+                        <div class="mt-3 space-y-1.5 border-t border-white/15 pt-3 text-xs">
+                            <p class="flex justify-between"><span class="text-[#A9BBD1]">Surcharge</span><span class="font-bold">₱7,000</span></p>
+                            <p class="flex justify-between"><span class="text-[#A9BBD1]">Interest</span><span class="font-bold">₱230</span></p>
+                            <p class="flex justify-between"><span class="text-[#A9BBD1]">If filed late</span><span class="font-bold text-[#FF9B8A]">₱36,230</span></p>
+                        </div>
+                    </div>
+                </FeatureCard>
+
+                <FeatureCard Tag="Knowledge hub" Title="What changed, and who it affects" Class="bg-white text-[#001F3E] lg:col-span-2"
+                             Blurb="BIR updates in a few lines, searchable and tagged by situation.">
+                    <div class="space-y-2 rounded-2xl bg-[#EEF3F9] p-4 text-sm">
+                        <span class="inline-block rounded-full bg-[#DCEBFA] px-2.5 py-0.5 text-xs font-bold text-[#0A4F99]">Deadlines</span>
+                        <p class="font-bold leading-snug">Filing extended for areas under a state of calamity</p>
+                        <p><span class="font-bold">Changed:</span> later due date</p>
+                        <p><span class="font-bold">Affects:</span> taxpayers registered there</p>
+                    </div>
+                </FeatureCard>
+
+                <FeatureCard Tag="Community" Title="Ask people in your exact situation" Class="bg-[#1FBCCF] text-[#001F3E] lg:col-span-6"
+                             Blurb="Scenario threads for freelancers, mixed income, sole proprietors and late filers, with verified answers and links to the right guide.">
+                    <ul class="grid gap-3 md:grid-cols-2">
+                        <li class="rounded-2xl bg-white p-4">
+                            <p class="flex flex-wrap gap-1.5 text-xs font-semibold"><span class="rounded-full border border-[#E2E8F0] px-2.5 py-0.5">Freelancer</span><span class="rounded-full border border-[#E2E8F0] px-2.5 py-0.5">Mixed income</span></p>
+                            <p class="mt-2 font-bold leading-snug">I have a day job and freelance work. Which form do I file?</p>
+                            <p class="mt-1 text-xs text-[#5B6B7F]"><span class="font-bold text-[#2C7A00]">✓ Verified answer</span> · 14 replies</p>
+                        </li>
+                        <li class="rounded-2xl bg-white p-4">
+                            <p class="flex flex-wrap gap-1.5 text-xs font-semibold"><span class="rounded-full border border-[#E2E8F0] px-2.5 py-0.5">Late filing</span></p>
+                            <p class="mt-2 font-bold leading-snug">Missed my 1701Q by two weeks with no income. What now?</p>
+                            <p class="mt-1 text-xs text-[#5B6B7F]"><span class="font-bold text-[#2C7A00]">✓ Solved</span> · 9 replies</p>
+                        </li>
+                    </ul>
+                </FeatureCard>
+            </div>
+        </section>
+
+        @* ============ HOW IT WORKS ============ *@
+        <section id="how" class="mx-auto max-w-7xl px-4 pt-24 sm:px-6 lg:px-8">
+            <div class="max-w-3xl">
+                <p class="text-sm font-bold uppercase tracking-widest text-[#0F69C5]">How it works</p>
+                <h2 class="mt-3 text-4xl font-extrabold leading-[1] tracking-tighter sm:text-6xl">From “where do I start?” to filed, in three steps.</h2>
+            </div>
+            <ol class="mt-10 grid gap-5 md:grid-cols-3">
+                @foreach (var step in LandingData.Steps)
+                {
+                    <li class="rounded-[1.75rem] border border-[#E2E8F0] bg-white p-7">
+                        <span class="grid h-12 w-12 place-items-center rounded-2xl text-xl font-extrabold text-[#001F3E] @step.ColorClass">@step.Number</span>
+                        <h3 class="mt-6 text-2xl font-extrabold tracking-tight">@step.Title</h3>
+                        <p class="mt-2 text-[#5B6B7F]">@step.Description</p>
+                    </li>
+                }
+            </ol>
+        </section>
+
+        @* ============ WHO IT'S FOR ============ *@
+        <section id="who" class="mx-auto max-w-7xl px-4 pt-24 sm:px-6 lg:px-8">
+            <div class="rounded-[2rem] bg-white p-6 sm:p-10 border border-[#E2E8F0]">
+                <h2 class="max-w-2xl text-4xl font-extrabold leading-[1] tracking-tighter sm:text-5xl">Built for people who run on their own.</h2>
+                <ul class="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+                    @foreach (var (icon, title, blurb) in LandingData.Audiences)
+                    {
+                        <li class="rounded-3xl bg-[#F6F9FC] p-5">
+                            <span class="grid h-12 w-12 place-items-center rounded-2xl bg-white text-2xl shadow-sm" aria-hidden="true">@icon</span>
+                            <h3 class="mt-4 text-lg font-extrabold tracking-tight">@title</h3>
+                            <p class="mt-1 text-sm text-[#5B6B7F]">@blurb</p>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </section>
+
+        @* ============ FAQ ============ *@
+        <section id="faq" class="mx-auto max-w-4xl px-4 pt-24 sm:px-6 lg:px-8">
+            <h2 class="text-center text-4xl font-extrabold leading-[1] tracking-tighter sm:text-5xl">Questions, answered</h2>
+            <div class="mt-10 space-y-3">
+                @foreach (var (faq, i) in LandingData.Faqs.Select((item, index) => (item, index)))
+                {
+                    var isOpen = openFaq == i;
+                    <div class="rounded-3xl border bg-white @(isOpen ? "border-[#0F69C5]" : "border-[#E2E8F0]")">
+                        <h3>
+                            <button type="button" class="flex w-full items-center justify-between gap-4 rounded-3xl px-6 py-5 text-left text-lg font-bold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F69C5]"
+                                    aria-expanded="@(isOpen ? "true" : "false")" @onclick="() => ToggleFaq(i)">
+                                @faq.Question
+                                <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full text-xl font-bold @(isOpen ? "bg-[#ADEE68]" : "bg-[#EEF3F9]")" aria-hidden="true">@(isOpen ? "−" : "+")</span>
+                            </button>
+                        </h3>
+                        @if (isOpen)
+                        {
+                            <p class="px-6 pb-6 text-[#5B6B7F]">@faq.Answer</p>
+                        }
+                    </div>
+                }
+            </div>
+        </section>
+
+        @* ============ CTA ============ *@
+        <section id="cta" class="mx-auto max-w-7xl px-4 pt-24 sm:px-6 lg:px-8">
+            <div class="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-[#001F3E] via-[#0B3B73] to-[#0F69C5] px-6 py-14 text-center text-white sm:px-12 sm:py-20">
+                <div class="pointer-events-none absolute -right-20 -top-24 h-80 w-80 rounded-full bg-[#ADEE68]/80 blur-3xl" aria-hidden="true"></div>
+                <div class="pointer-events-none absolute -bottom-32 -left-20 h-80 w-80 rounded-full bg-[#1FBCCF]/60 blur-3xl" aria-hidden="true"></div>
+                <div class="relative">
+                    <h2 class="mx-auto max-w-3xl text-4xl font-extrabold leading-[1] tracking-tighter sm:text-6xl">Make your next filing a breeze.</h2>
+                    <p class="mx-auto mt-4 max-w-xl text-[#C5D3E4]">Add your first business, see your deadlines and get a checklist for what’s coming up.</p>
+                    <div class="mt-8 flex flex-wrap justify-center gap-3">
+                        <a href="@GetStartedHref" class="rounded-full bg-[#ADEE68] px-8 py-3.5 font-bold text-[#001F3E] transition hover:brightness-95">Get started</a>
+                        <a href="#features" class="rounded-full border border-white/30 px-8 py-3.5 font-bold text-white transition hover:bg-white/10">Explore features</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    @* ============ FOOTER ============ *@
+    <footer class="mx-auto mt-24 w-full max-w-7xl px-4 pb-8 sm:px-6 lg:px-8">
+        <div class="flex flex-col gap-8 md:flex-row md:justify-between">
+            <div class="max-w-xs">
+                <a href="/" class="flex items-center gap-2.5">
+                    <BiraLogo Class="h-8 w-8" />
+                    <span class="text-2xl font-extrabold tracking-tighter">BIRa</span>
+                </a>
+                <p class="mt-3 text-sm text-[#5B6B7F]">Tax compliance help for Filipino freelancers and small businesses.</p>
+            </div>
+            <nav class="flex gap-12 text-sm" aria-label="Footer">
+                <ul class="space-y-2">
+                    <li class="font-extrabold">Product</li>
+                    <li><a href="#features" class="text-[#5B6B7F] hover:text-[#001F3E]">Features</a></li>
+                    <li><a href="#how" class="text-[#5B6B7F] hover:text-[#001F3E]">How it works</a></li>
+                </ul>
+                <ul class="space-y-2">
+                    <li class="font-extrabold">Company</li>
+                    <li><a href="#about" class="text-[#5B6B7F] hover:text-[#001F3E]">About</a></li>
+                    <li><a href="#faq" class="text-[#5B6B7F] hover:text-[#001F3E]">FAQ</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="mt-8 flex items-start gap-3 rounded-2xl bg-[#001F3E] px-5 py-4 text-sm text-[#C5D3E4]">
+            <span class="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[#ADEE68] text-xs font-extrabold text-[#001F3E]" aria-hidden="true">i</span>
+            <p>Informational aid only. Verify deadlines and tax types against your official BIR Form 2303 COR and issuances.</p>
+        </div>
+        <p class="mt-4 text-center text-xs text-[#5B6B7F]">© @DateTime.Now.Year BIRa. Not affiliated with the Bureau of Internal Revenue.</p>
+    </footer>
+</div>
+
+@code {
+    private bool menuOpen;
+    private int? openFaq = 0;
+
+    /// <summary>Path to the header art. Replace with your own file, e.g. "images/hero-art.png".</summary>
+    private const string HeroArtSrc = "images/hero-art-placeholder.svg";
+
+    /// <summary>Where the "Get started" buttons point.</summary>
+    private const string GetStartedHref = "/register";
+
+    private static readonly List<(string Label, string Href)> NavLinks = new()
+    {
+        ("Features", "#features"),
+        ("How it works", "#how"),
+        ("Who it’s for", "#who"),
+        ("FAQ", "#faq"),
+    };
+
+    private record DeadlineRow(string Date, string Code, string Name, string Status, string BadgeClass);
+
+    private static readonly List<DeadlineRow> Deadlines = new()
+    {
+        new("Dec 10", "1701Q", "Quarterly income tax", "Due soon", "bg-[#FEB21A] text-[#001F3E]"),
+        new("Jan 25", "2551Q", "Percentage tax", "Upcoming", "bg-[#DCEBFA] text-[#0A4F99]"),
+        new("Oct 26", "2550Q", "Quarterly VAT", "Overdue", "bg-[#ED3F27] text-white"),
+        new("Nov 16", "1701Q", "Quarterly income tax", "Filed", "bg-[#ADEE68] text-[#001F3E]"),
+    };
+
+    private void ToggleFaq(int index) => openFaq = openFaq == index ? null : index;
+}
