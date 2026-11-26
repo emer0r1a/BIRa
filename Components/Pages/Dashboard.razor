@@ -1,0 +1,237 @@
+@page "/dashboard"
+@layout DashboardLayout
+@implements IDisposable
+@inject WorkspaceState Workspace
+
+<PageTitle>Dashboard | BIRa</PageTitle>
+
+@* ============ HEADER ============ *@
+<div class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+        <h1 class="text-3xl font-extrabold leading-tight tracking-tighter sm:text-5xl">@Greeting, @FirstName</h1>
+        <p class="mt-1 text-[#5B6B7F]">Here’s where <span class="font-bold text-[#001F3E]">@Workspace.Current.Name</span> stands with the BIR.</p>
+    </div>
+    <ul class="flex flex-wrap gap-2 text-xs font-bold">
+        <li class="rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5">@Workspace.Current.Regime</li>
+        <li class="rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5">@Workspace.Current.TaxType</li>
+        <li class="rounded-full border border-[#E2E8F0] bg-white px-3 py-1.5">@Workspace.Current.Rdo</li>
+    </ul>
+</div>
+
+@* ============ OVERDUE ALERT ============ *@
+@if (Count(DeadlineStatus.Overdue) > 0)
+{
+    <div class="mt-6 flex flex-col gap-3 rounded-3xl border border-[#ED3F27]/30 bg-[#ED3F27]/10 p-5 sm:flex-row sm:items-center sm:justify-between" role="alert">
+        <div class="flex items-start gap-3">
+            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#ED3F27] text-lg font-extrabold text-white" aria-hidden="true">!</span>
+            <p class="text-sm"><span class="font-extrabold">@Count(DeadlineStatus.Overdue) overdue @(Count(DeadlineStatus.Overdue) == 1 ? "filing" : "filings").</span> Late filing can add a surcharge, interest and a compromise penalty, so it’s best to file as soon as you can.</p>
+        </div>
+        <a href="#compliance" class="w-fit shrink-0 rounded-full bg-[#001F3E] px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-125" @onclick="() => SetFilter(DeadlineStatus.Overdue)">Review now</a>
+    </div>
+}
+
+@* ============ NEXT FILING + STATUS CARDS ============ *@
+<div class="mt-6 grid gap-5 lg:grid-cols-[360px_1fr]">
+    <NextFilingCard Item="NextFiling" Today="Today" OnOpen="Open" />
+
+    <div class="grid grid-cols-2 gap-4">
+        @foreach (var s in Statuses)
+        {
+            <a href="#compliance" class="group flex flex-col justify-between rounded-3xl border border-[#E2E8F0] bg-white p-5 transition hover:border-[#0F69C5] focus-visible:outline-2 focus-visible:outline-[#0F69C5]" @onclick="() => SetFilter(s)">
+                <span class="h-1.5 w-10 rounded-full @s.DotClass()" aria-hidden="true"></span>
+                <span class="mt-6 block">
+                    <span class="block text-5xl font-extrabold leading-none tracking-tighter">@Count(s)</span>
+                    <span class="mt-2 block font-extrabold">@s.Label()</span>
+                    <span class="block text-xs text-[#5B6B7F]">@s.Hint()</span>
+                </span>
+            </a>
+        }
+    </div>
+</div>
+
+@* ============ COMPLIANCE CALENDAR ============ *@
+<section id="compliance" class="mt-12">
+    <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+            <h2 class="text-3xl font-extrabold leading-tight tracking-tighter sm:text-4xl">Compliance calendar</h2>
+            <p class="mt-1 text-[#5B6B7F]">Due dates are already moved off weekends and holidays.</p>
+        </div>
+
+        <div class="flex flex-wrap gap-2" role="group" aria-label="Filter deadlines by status">
+            @foreach (var (label, value) in Filters)
+            {
+                <button type="button"
+                        class="rounded-full border px-4 py-2 text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F69C5] @(statusFilter == value ? "border-[#001F3E] bg-[#001F3E] text-white" : "border-[#E2E8F0] bg-white hover:border-[#0F69C5]")"
+                        aria-pressed="@(statusFilter == value ? "true" : "false")"
+                        @onclick="() => SetFilter(value)">
+                    @label <span class="ml-1 opacity-60">@(value is { } v ? Count(v) : Deadlines.Count)</span>
+                </button>
+            }
+        </div>
+    </div>
+
+    <div class="mt-6 grid gap-5 xl:grid-cols-[1.4fr_1fr]">
+        <div class="rounded-[1.75rem] border border-[#E2E8F0] bg-white p-3 sm:p-4">
+            @if (selectedDate is not null)
+            {
+                <div class="px-2 pb-2 pt-1">
+                    <button type="button" class="inline-flex items-center gap-2 rounded-full bg-[#EEF3F9] px-3 py-1.5 text-xs font-bold transition hover:bg-[#DCEBFA]" @onclick="() => selectedDate = null">
+                        Showing @selectedDate.Value.ToString("ddd, MMM d") <span aria-hidden="true">✕</span><span class="sr-only">Clear date</span>
+                    </button>
+                </div>
+            }
+
+            @if (Visible.Any())
+            {
+                <ul class="divide-y divide-[#E2E8F0]">
+                    @foreach (var d in Visible)
+                    {
+                        <li><DeadlineRow Item="d" Today="Today" OnOpen="Open" /></li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="px-6 py-14 text-center">
+                    <p class="text-4xl" aria-hidden="true">@(statusFilter == DeadlineStatus.Overdue ? "🎉" : "🗓️")</p>
+                    <h3 class="mt-3 text-xl font-extrabold tracking-tight">@EmptyTitle</h3>
+                    <p class="mx-auto mt-1 max-w-xs text-sm text-[#5B6B7F]">@EmptyText</p>
+                    @if (statusFilter is not null || selectedDate is not null)
+                    {
+                        <button type="button" class="mt-5 rounded-full border border-[#E2E8F0] px-5 py-2.5 text-sm font-bold transition hover:bg-[#EEF3F9]" @onclick="ClearFilters">Clear filters</button>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="rounded-[1.75rem] border border-[#E2E8F0] bg-white p-5 sm:p-6">
+            <CalendarMonth Month="month" Today="Today" Deadlines="Deadlines" Selected="selectedDate"
+                           OnPrev="() => month = month.AddMonths(-1)"
+                           OnNext="() => month = month.AddMonths(1)"
+                           OnToday="GoToToday"
+                           OnSelect="SelectDate" />
+        </div>
+    </div>
+</section>
+
+<DeadlineDrawer Item="openItem" Today="Today" OnClose="Close" OnToggleFiled="ToggleFiled" />
+
+@code {
+    private DeadlineStatus? statusFilter;
+    private DateOnly? selectedDate;
+    private DateOnly month;
+    private Deadline? openItem;
+    private Timer? timer;
+
+    private static readonly DeadlineStatus[] Statuses = Enum.GetValues<DeadlineStatus>();
+
+    private static readonly (string Label, DeadlineStatus? Value)[] Filters =
+    {
+        ("All", null),
+        ("Upcoming", DeadlineStatus.Upcoming),
+        ("Due soon", DeadlineStatus.DueSoon),
+        ("Overdue", DeadlineStatus.Overdue),
+        ("Filed", DeadlineStatus.Filed),
+    };
+
+    private DateOnly Today => Workspace.Today;
+
+    private List<Deadline> Deadlines => Workspace.CurrentDeadlines.ToList();
+
+    private int Count(DeadlineStatus status) => Deadlines.Count(d => d.StatusOn(Today) == status);
+
+    /// <summary>The soonest filing that isn't filed yet (an overdue one counts first).</summary>
+    private Deadline? NextFiling => Deadlines.FirstOrDefault(d => !d.IsFiled);
+
+    /// <summary>Open items soonest first, then filed items, newest first.</summary>
+    private IEnumerable<Deadline> Visible => Deadlines
+        .Where(d => statusFilter is null || d.StatusOn(Today) == statusFilter)
+        .Where(d => selectedDate is null || d.DueDate == selectedDate)
+        .OrderBy(d => d.IsFiled)
+        .ThenBy(d => d.IsFiled ? -d.DueDate.DayNumber : d.DueDate.DayNumber);
+
+    private string FirstName => Workspace.UserName.Split(' ')[0];
+
+    private string Greeting
+    {
+        get
+        {
+            var hour = DateTime.Now.Hour;
+            if (hour < 12) return "Good morning";
+            if (hour < 18) return "Good afternoon";
+            return "Good evening";
+        }
+    }
+
+    private string EmptyTitle => statusFilter switch
+    {
+        DeadlineStatus.Overdue => "Nothing overdue",
+        DeadlineStatus.DueSoon => "Nothing due soon",
+        DeadlineStatus.Filed => "Nothing filed yet",
+        _ => "No deadlines here",
+    };
+
+    private string EmptyText => statusFilter switch
+    {
+        DeadlineStatus.Overdue => "You’re all caught up. Nice work keeping on top of your filings.",
+        DeadlineStatus.DueSoon => "No filings are due in the next two weeks.",
+        DeadlineStatus.Filed => "Filings you mark as filed will show up here.",
+        _ => selectedDate is not null
+            ? "No filings are due on this date."
+            : "Nothing matches your filters right now.",
+    };
+
+    protected override void OnInitialized()
+    {
+        month = new DateOnly(Today.Year, Today.Month, 1);
+        Workspace.Changed += OnWorkspaceChanged;
+
+        // Keep the countdown fresh.
+        timer = new Timer(_ => InvokeAsync(StateHasChanged), null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+    }
+
+    private void OnWorkspaceChanged()
+    {
+        // A different business has different deadlines, so start fresh.
+        statusFilter = null;
+        selectedDate = null;
+        openItem = null;
+        InvokeAsync(StateHasChanged);
+    }
+
+    private void SetFilter(DeadlineStatus? status)
+    {
+        statusFilter = status;
+        selectedDate = null;
+    }
+
+    private void ClearFilters()
+    {
+        statusFilter = null;
+        selectedDate = null;
+    }
+
+    private void SelectDate(DateOnly date)
+    {
+        selectedDate = selectedDate == date ? null : date;
+        if (selectedDate is not null) statusFilter = null;
+    }
+
+    private void GoToToday()
+    {
+        month = new DateOnly(Today.Year, Today.Month, 1);
+        selectedDate = null;
+    }
+
+    private void Open(Deadline deadline) => openItem = deadline;
+
+    private void Close() => openItem = null;
+
+    private void ToggleFiled(Deadline deadline) => Workspace.SetFiled(deadline.Id, !deadline.IsFiled);
+
+    public void Dispose()
+    {
+        Workspace.Changed -= OnWorkspaceChanged;
+        timer?.Dispose();
+    }
+}
