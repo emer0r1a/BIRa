@@ -1,0 +1,17 @@
+<Router AppAssembly="typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(Layout.MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <LayoutView Layout="typeof(Layout.MainLayout)">
+            <div class="grid min-h-screen place-items-center bg-[#F6F9FC] px-4 text-center text-[#001F3E]">
+                <div>
+                    <h1 class="text-4xl font-extrabold tracking-tight">Page not found</h1>
+                    <p class="mt-2 text-[#5B6B7F]">This page isn’t built yet.</p>
+                    <a href="/" class="mt-6 inline-block rounded-full bg-[#0F69C5] px-6 py-3 font-bold text-white">Back to home</a>
+                </div>
+            </div>
+        </LayoutView>
+    </NotFound>
+</Router>
