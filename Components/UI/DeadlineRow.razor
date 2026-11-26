@@ -1,0 +1,26 @@
+<button type="button"
+        class="flex w-full items-center gap-4 rounded-2xl px-3 py-3.5 text-left transition hover:bg-[#F6F9FC] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-[#0F69C5]"
+        @onclick="() => OnOpen.InvokeAsync(Item)">
+    <span class="grid w-14 shrink-0 place-items-center rounded-2xl bg-[#EEF3F9] py-2" aria-hidden="true">
+        <span class="text-xl font-extrabold leading-none">@Item.DueDate.Day</span>
+        <span class="text-[11px] font-semibold uppercase text-[#5B6B7F]">@Item.DueDate.ToString("MMM")</span>
+    </span>
+
+    <span class="min-w-0 flex-1">
+        <span class="block font-extrabold leading-snug">@Item.FormCode <span class="font-semibold text-[#5B6B7F]">· @Item.Title</span></span>
+        <span class="block text-sm text-[#5B6B7F]">@Item.Period · @Item.RelativeText(Today)</span>
+        @if (Item.AdjustmentNote is not null)
+        {
+            <span class="mt-0.5 block text-xs font-semibold text-[#0F69C5]">@Item.AdjustmentNote</span>
+        }
+    </span>
+
+    <StatusBadge Status="Item.StatusOn(Today)" />
+    <span class="text-xl text-[#8A9BB0]" aria-hidden="true">›</span>
+</button>
+
+@code {
+    [Parameter, EditorRequired] public Deadline Item { get; set; } = default!;
+    [Parameter, EditorRequired] public DateOnly Today { get; set; }
+    [Parameter] public EventCallback<Deadline> OnOpen { get; set; }
+}

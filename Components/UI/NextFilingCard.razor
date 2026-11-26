@@ -1,0 +1,52 @@
+@if (Item is null)
+{
+    <div class="flex h-full min-h-[18rem] flex-col justify-between overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[#001F3E] to-[#0B3B73] p-6 text-white">
+        <span class="w-fit rounded-full bg-[#ADEE68] px-3 py-1 text-xs font-bold text-[#001F3E]">All caught up</span>
+        <div>
+            <h2 class="text-3xl font-extrabold leading-tight tracking-tighter">No open filings</h2>
+            <p class="mt-2 text-sm text-[#A9BBD1]">Everything for this business is filed. We’ll remind you when the next one is near.</p>
+        </div>
+    </div>
+}
+else
+{
+    var status = Item.StatusOn(Today);
+    var due = Item.DueDate.ToDateTime(new TimeOnly(23, 59));
+    var left = due - DateTime.Now;
+
+    <div class="relative flex h-full min-h-[18rem] flex-col justify-between overflow-hidden rounded-[1.75rem] bg-gradient-to-br from-[#001F3E] to-[#0B3B73] p-6 text-white">
+        <div class="pointer-events-none absolute -bottom-28 -right-24 h-72 w-72 rounded-full bg-[#1FBCCF]/40 blur-3xl" aria-hidden="true"></div>
+
+        <div class="relative flex items-center justify-between">
+            <p class="text-xs font-bold uppercase tracking-widest text-[#A9BBD1]">Next filing</p>
+            <StatusBadge Status="status" />
+        </div>
+
+        <div class="relative mt-6">
+            <h2 class="text-3xl font-extrabold leading-tight tracking-tighter">@Item.FormCode<br />@Item.Title</h2>
+            <p class="mt-1 text-sm text-[#A9BBD1]">@Item.Period · due @Item.DueDate.ToString("ddd, MMM d, yyyy")</p>
+
+            @if (left > TimeSpan.Zero)
+            {
+                <div class="mt-5 flex gap-2 text-center" role="timer" aria-label="Time left until due">
+                    <div class="flex-1 rounded-2xl bg-white/10 py-3"><p class="text-3xl font-extrabold leading-none">@((int)Math.Floor(left.TotalDays))</p><p class="mt-1 text-[11px] text-[#A9BBD1]">days</p></div>
+                    <div class="flex-1 rounded-2xl bg-white/10 py-3"><p class="text-3xl font-extrabold leading-none">@left.Hours</p><p class="mt-1 text-[11px] text-[#A9BBD1]">hours</p></div>
+                    <div class="flex-1 rounded-2xl bg-white/10 py-3"><p class="text-3xl font-extrabold leading-none">@left.Minutes</p><p class="mt-1 text-[11px] text-[#A9BBD1]">mins</p></div>
+                </div>
+            }
+            else
+            {
+                <p class="mt-5 rounded-2xl bg-[#ED3F27] px-4 py-3 text-sm font-bold">Overdue by @Item.RelativeText(Today).Replace(" overdue", "")</p>
+            }
+        </div>
+
+        <button type="button" class="relative mt-6 w-fit rounded-full bg-[#ADEE68] px-5 py-2.5 text-sm font-bold text-[#001F3E] transition hover:brightness-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+                @onclick="() => OnOpen.InvokeAsync(Item)">View details</button>
+    </div>
+}
+
+@code {
+    [Parameter] public Deadline? Item { get; set; }
+    [Parameter, EditorRequired] public DateOnly Today { get; set; }
+    [Parameter] public EventCallback<Deadline> OnOpen { get; set; }
+}
