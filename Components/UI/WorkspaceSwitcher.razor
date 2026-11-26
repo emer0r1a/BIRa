@@ -1,0 +1,57 @@
+@implements IDisposable
+@inject WorkspaceState Workspace
+
+<div>
+    <button type="button"
+            class="flex w-full items-center gap-3 rounded-2xl border border-white/15 bg-white/10 p-2.5 text-left transition hover:bg-white/15 focus-visible:outline-2 focus-visible:outline-[#ADEE68]"
+            aria-expanded="@(open ? "true" : "false")" aria-controls="workspace-list" @onclick="() => open = !open">
+        <Avatar Name="@Workspace.Current.Name" Class="@($"h-10 w-10 text-sm {Workspace.Current.AvatarClass}")" />
+        <span class="min-w-0 flex-1 leading-tight">
+            <span class="block truncate text-sm font-extrabold text-white">@Workspace.Current.Name</span>
+            <span class="block truncate text-xs text-[#A9BBD1]">@Workspace.Current.Kind · @Workspace.Current.Regime</span>
+        </span>
+        <span class="text-[#A9BBD1]" aria-hidden="true">@(open ? "⌃" : "⌄")</span>
+    </button>
+
+    @if (open)
+    {
+        <ul id="workspace-list" class="mt-2 space-y-1 rounded-2xl bg-[#0A2B52] p-1.5">
+            @foreach (var b in Workspace.Businesses)
+            {
+                <li>
+                    <button type="button" class="flex w-full items-center gap-3 rounded-xl p-2 text-left transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-[#ADEE68]"
+                            aria-current="@(b == Workspace.Current ? "true" : null)" @onclick="() => Pick(b)">
+                        <Avatar Name="@b.Name" Class="@($"h-8 w-8 text-xs {b.AvatarClass}")" />
+                        <span class="min-w-0 flex-1 truncate text-sm font-semibold text-white">@b.Name</span>
+                        @if (b == Workspace.Current)
+                        {
+                            <span class="text-[#ADEE68]" aria-hidden="true">✓</span>
+                        }
+                    </button>
+                </li>
+            }
+            <li>
+                <a href="/businesses?add=true" class="flex items-center gap-3 rounded-xl p-2 text-sm font-semibold text-white transition hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-[#ADEE68]" @onclick="() => open = false">
+                    <span class="grid h-8 w-8 place-items-center rounded-full border border-dashed border-white/40" aria-hidden="true">+</span>
+                    Add a business
+                </a>
+            </li>
+        </ul>
+    }
+</div>
+
+@code {
+    private bool open;
+
+    protected override void OnInitialized() => Workspace.Changed += OnChanged;
+
+    private void OnChanged() => InvokeAsync(StateHasChanged);
+
+    private void Pick(Business business)
+    {
+        Workspace.Select(business.Id);
+        open = false;
+    }
+
+    public void Dispose() => Workspace.Changed -= OnChanged;
+}
