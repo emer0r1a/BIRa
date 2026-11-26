@@ -1,0 +1,14 @@
+<span class="inline-flex items-center gap-1 rounded-md bg-[#1FBCCF]/20 px-2 py-0.5 text-[11px] font-bold text-[#0A6672]">
+    @Name
+    @if (Count > 1)
+    {
+        <span class="opacity-70">×@Count</span>
+    }
+</span>
+
+@code {
+    [Parameter, EditorRequired] public string Name { get; set; } = "";
+
+    /// <summary>When above 1, shows how many steps need this document.</summary>
+    [Parameter] public int Count { get; set; }
+}

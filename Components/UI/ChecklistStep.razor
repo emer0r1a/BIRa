@@ -1,0 +1,45 @@
+<li class="rounded-2xl border px-4 py-4 transition sm:px-5 @(IsDone ? "border-[#ADEE68] bg-[#F4FCE8]" : "border-[#E2E8F0] bg-white")">
+    <div class="flex items-start gap-4">
+        <button type="button" role="checkbox"
+                class="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F69C5] @(IsDone ? "border-[#ADEE68] bg-[#ADEE68] text-[#001F3E]" : "border-[#C9D6E6] bg-white hover:border-[#0F69C5]")"
+                aria-checked="@(IsDone ? "true" : "false")"
+                aria-label="@((IsDone ? "Mark as not done: " : "Mark as done: ") + Item.Title)"
+                @onclick="() => OnToggle.InvokeAsync(Item)">
+            @if (IsDone)
+            {
+                <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5" /></svg>
+            }
+        </button>
+
+        <div class="min-w-0 flex-1">
+            <p class="text-xs font-bold text-[#8A9BB0]">Step @Number</p>
+            <h3 class="text-lg font-extrabold leading-snug tracking-tight @(IsDone ? "text-[#5B6B7F] line-through decoration-[#5B6B7F]/50" : "")">@Item.Title</h3>
+            <p class="mt-1 text-sm text-[#5B6B7F]">@Item.Note</p>
+
+            @if (Item.Documents.Length > 0)
+            {
+                <ul class="mt-3 flex flex-wrap gap-1.5" aria-label="Documents for this step">
+                    @foreach (var doc in Item.Documents)
+                    {
+                        <li><DocTag Name="@doc" /></li>
+                    }
+                </ul>
+            }
+
+            @if (!string.IsNullOrEmpty(Item.Tip))
+            {
+                <details class="group mt-3 rounded-xl bg-[#EEF3F9] px-3 py-2 text-sm">
+                    <summary class="cursor-pointer select-none font-bold text-[#0F69C5]">Common mistake</summary>
+                    <p class="mt-1.5 text-[#5B6B7F]">@Item.Tip</p>
+                </details>
+            }
+        </div>
+    </div>
+</li>
+
+@code {
+    [Parameter, EditorRequired] public GuideStep Item { get; set; } = default!;
+    [Parameter] public int Number { get; set; }
+    [Parameter] public bool IsDone { get; set; }
+    [Parameter] public EventCallback<GuideStep> OnToggle { get; set; }
+}

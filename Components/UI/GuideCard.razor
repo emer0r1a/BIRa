@@ -1,0 +1,28 @@
+<button type="button"
+        class="flex w-full items-center gap-4 rounded-3xl border p-4 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F69C5] @(Selected ? "border-[#001F3E] bg-[#001F3E] text-white" : "border-[#E2E8F0] bg-white hover:border-[#0F69C5]")"
+        aria-pressed="@(Selected ? "true" : "false")"
+        @onclick="() => OnSelect.InvokeAsync(Item)">
+    <span class="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-[#ADEE68] text-2xl" aria-hidden="true">@Item.Icon</span>
+
+    <span class="min-w-0 flex-1">
+        <span class="block font-extrabold leading-snug">@Item.Title</span>
+        <span class="block text-xs @(Selected ? "text-[#A9BBD1]" : "text-[#5B6B7F]")">@Item.Category · about @Item.Minutes min</span>
+
+        <span class="mt-2.5 flex items-center gap-3">
+            <span class="h-1.5 flex-1 overflow-hidden rounded-full @(Selected ? "bg-white/20" : "bg-[#EEF3F9]")">
+                <span class="block h-full rounded-full bg-gradient-to-r from-[#ADEE68] to-[#1FBCCF] transition-all" style="width: @Percent%"></span>
+            </span>
+            <span class="text-xs font-bold">@Done/@Total</span>
+        </span>
+    </span>
+</button>
+
+@code {
+    [Parameter, EditorRequired] public Guide Item { get; set; } = default!;
+    [Parameter] public bool Selected { get; set; }
+    [Parameter] public int Done { get; set; }
+    [Parameter] public int Total { get; set; }
+    [Parameter] public EventCallback<Guide> OnSelect { get; set; }
+
+    private int Percent => Total == 0 ? 0 : (int)Math.Round(Done * 100.0 / Total);
+}
