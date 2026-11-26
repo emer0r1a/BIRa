@@ -1,0 +1,62 @@
+@page "/login"
+@layout AuthLayout
+@inject IAuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Log in | BIRa</PageTitle>
+
+<h1 class="text-3xl font-extrabold leading-tight tracking-tighter sm:text-4xl">Welcome back</h1>
+<p class="mt-2 text-[#5B6B7F]">Log in to see your deadlines and checklists.</p>
+
+<EditForm Model="model" OnValidSubmit="SubmitAsync" class="mt-8 space-y-5">
+    <DataAnnotationsValidator />
+
+    @if (error is not null)
+    {
+        <p class="rounded-2xl bg-[#ED3F27]/10 px-4 py-3 text-sm font-semibold text-[#B42A16]" role="alert">@error</p>
+    }
+
+    <AuthField Label="Email" InputId="login-email">
+        <InputText id="login-email" type="email" autocomplete="email" placeholder="you@example.com"
+                   class="@AuthField.InputClass" @bind-Value="model.Email" />
+        <ValidationMessage For="() => model.Email" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+    </AuthField>
+
+    <AuthField Label="Password" InputId="login-password">
+        <Aside><a href="/forgot-password" class="text-xs font-bold text-[#0F69C5] hover:underline">Forgot password?</a></Aside>
+        <ChildContent>
+            <PasswordInput id="login-password" autocomplete="current-password" placeholder="Your password" @bind-Value="model.Password" />
+            <ValidationMessage For="() => model.Password" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+        </ChildContent>
+    </AuthField>
+
+    <label class="flex cursor-pointer items-center gap-3 text-sm font-semibold">
+        <InputCheckbox class="h-5 w-5 accent-[#0F69C5]" @bind-Value="model.RememberMe" />
+        Keep me logged in on this device
+    </label>
+
+    <AuthSubmit Text="Log in" BusyText="Logging in..." Busy="busy" />
+</EditForm>
+
+<p class="mt-6 text-center text-sm text-[#5B6B7F]">
+    New to BIRa?
+    <a href="/register" class="font-bold text-[#0F69C5] hover:underline">Create an account</a>
+</p>
+
+@code {
+    private readonly LoginModel model = new();
+    private bool busy;
+    private string? error;
+
+    private async Task SubmitAsync()
+    {
+        busy = true;
+        error = null;
+
+        var result = await Auth.LoginAsync(model);
+
+        busy = false;
+        if (result.Succeeded) Nav.NavigateTo("/dashboard");
+        else error = result.Error ?? "We couldn’t log you in. Check your details and try again.";
+    }
+}
