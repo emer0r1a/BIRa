@@ -1,0 +1,97 @@
+@page "/register"
+@layout AuthLayout
+@inject IAuthService Auth
+
+<PageTitle>Create your account | BIRa</PageTitle>
+
+@if (done)
+{
+    <AuthNotice Title="Check your inbox" Icon="✉️">
+        <ChildContent>
+        We sent a verification link to <span class="font-bold text-[#001F3E]">@model.Email</span>. Open it to finish setting up your account. This is a demo, so no email was actually sent.
+        </ChildContent>
+        <Actions>
+            <a href="/login" class="block rounded-full bg-[#0F69C5] px-6 py-3 font-bold text-white transition hover:brightness-110">Go to log in</a>
+        </Actions>
+    </AuthNotice>
+}
+else
+{
+    <h1 class="text-3xl font-extrabold leading-tight tracking-tighter sm:text-4xl">Create your account</h1>
+    <p class="mt-2 text-[#5B6B7F]">Set up your first business in a few minutes.</p>
+
+    <EditForm Model="model" OnValidSubmit="SubmitAsync" class="mt-8 space-y-5">
+        <DataAnnotationsValidator />
+
+        @if (error is not null)
+        {
+            <p class="rounded-2xl bg-[#ED3F27]/10 px-4 py-3 text-sm font-semibold text-[#B42A16]" role="alert">@error</p>
+        }
+
+        <AuthField Label="Full name" InputId="reg-name">
+            <InputText id="reg-name" autocomplete="name" placeholder="Maria Reyes" class="@AuthField.InputClass" @bind-Value="model.FullName" />
+            <ValidationMessage For="() => model.FullName" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+        </AuthField>
+
+        <AuthField Label="Email" InputId="reg-email">
+            <InputText id="reg-email" type="email" autocomplete="email" placeholder="you@example.com" class="@AuthField.InputClass" @bind-Value="model.Email" />
+            <ValidationMessage For="() => model.Email" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+        </AuthField>
+
+        <AuthField Label="I am a…" InputId="reg-type" Hint="This helps us suggest the right guides. You can change it later.">
+            <InputSelect id="reg-type" class="@AuthField.InputClass" @bind-Value="model.AccountType">
+                <option value="">Choose one</option>
+                @foreach (var type in RegisterModel.AccountTypes)
+                {
+                    <option value="@type">@type</option>
+                }
+            </InputSelect>
+            <ValidationMessage For="() => model.AccountType" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+        </AuthField>
+
+        <AuthField Label="Password" InputId="reg-password">
+            <PasswordInput id="reg-password" autocomplete="new-password" placeholder="Create a password" @bind-Value="model.Password" />
+            <ValidationMessage For="() => model.Password" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+            <PasswordStrength Password="@model.Password" />
+        </AuthField>
+
+        <AuthField Label="Confirm password" InputId="reg-confirm">
+            <PasswordInput id="reg-confirm" autocomplete="new-password" placeholder="Re-enter your password" @bind-Value="model.ConfirmPassword" />
+            <ValidationMessage For="() => model.ConfirmPassword" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+        </AuthField>
+
+        <div>
+            <label class="flex cursor-pointer items-start gap-3 text-sm">
+                <InputCheckbox class="mt-0.5 h-5 w-5 shrink-0 accent-[#0F69C5]" @bind-Value="model.AcceptTerms" />
+                <span>I understand BIRa is an informational aid, and I’ll verify deadlines and tax types against my official BIR Form 2303 COR.</span>
+            </label>
+            <ValidationMessage For="() => model.AcceptTerms" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+        </div>
+
+        <AuthSubmit Text="Create account" BusyText="Creating your account..." Busy="busy" />
+    </EditForm>
+
+    <p class="mt-6 text-center text-sm text-[#5B6B7F]">
+        Already have an account?
+        <a href="/login" class="font-bold text-[#0F69C5] hover:underline">Log in</a>
+    </p>
+}
+
+@code {
+    private readonly RegisterModel model = new();
+    private bool busy;
+    private bool done;
+    private string? error;
+
+    private async Task SubmitAsync()
+    {
+        busy = true;
+        error = null;
+
+        var result = await Auth.RegisterAsync(model);
+
+        busy = false;
+        if (result.Succeeded) done = true;
+        else error = result.Error ?? "We couldn’t create your account. Please try again.";
+    }
+}
