@@ -1,0 +1,76 @@
+@if (Item is not null)
+{
+    var status = Item.StatusOn(Today);
+
+    <div class="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-labelledby="drawer-title">
+        <button type="button" class="absolute inset-0 bg-[#001F3E]/50" aria-label="Close details" @onclick="OnClose"></button>
+
+        <aside class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col overflow-y-auto bg-white p-6 shadow-2xl sm:p-8">
+            <div class="flex items-center justify-between">
+                <StatusBadge Status="status" />
+                <button type="button" class="grid h-10 w-10 place-items-center rounded-full border border-[#E2E8F0] text-lg transition hover:bg-[#EEF3F9]" aria-label="Close" @onclick="OnClose">✕</button>
+            </div>
+
+            <h2 id="drawer-title" class="mt-5 text-3xl font-extrabold leading-tight tracking-tighter">@Item.FormCode<br />@Item.Title</h2>
+            <p class="mt-1 text-[#5B6B7F]">@Item.Period</p>
+
+            <dl class="mt-6 grid grid-cols-2 gap-3">
+                <div class="rounded-2xl bg-[#F6F9FC] p-4">
+                    <dt class="text-xs font-bold uppercase tracking-wide text-[#5B6B7F]">Due date</dt>
+                    <dd class="mt-1 font-extrabold">@Item.DueDate.ToString("ddd, MMM d, yyyy")</dd>
+                </div>
+                <div class="rounded-2xl bg-[#F6F9FC] p-4">
+                    <dt class="text-xs font-bold uppercase tracking-wide text-[#5B6B7F]">Timing</dt>
+                    <dd class="mt-1 font-extrabold">@Item.RelativeText(Today)</dd>
+                </div>
+            </dl>
+
+            @if (Item.AdjustmentNote is not null)
+            {
+                <p class="mt-3 rounded-2xl bg-[#DCEBFA] px-4 py-3 text-sm font-semibold text-[#0A4F99]">@Item.AdjustmentNote. The date shown is the next working day.</p>
+            }
+
+            @if (status == DeadlineStatus.Overdue)
+            {
+                <p class="mt-3 rounded-2xl bg-[#ED3F27]/10 px-4 py-3 text-sm font-semibold text-[#B42A16]">Late filing can add a surcharge, interest and a compromise penalty. File as soon as you can. The penalty calculator is coming soon.</p>
+            }
+
+            <h3 class="mt-8 text-sm font-extrabold uppercase tracking-widest text-[#5B6B7F]">What you’ll need</h3>
+            <ul class="mt-3 space-y-2">
+                @foreach (var req in Item.Requirements)
+                {
+                    <li class="flex items-start gap-3 rounded-2xl border border-[#E2E8F0] px-4 py-3 text-sm font-semibold">
+                        <span class="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md bg-[#ADEE68] text-xs font-extrabold" aria-hidden="true">✓</span>@req
+                    </li>
+                }
+            </ul>
+
+            @if (Item.FormCode is "1701Q" or "2551Q" or "2550Q")
+            {
+                <a href="/guides?guide=quarterly-filing" class="mt-4 flex items-center justify-between rounded-2xl bg-[#EEF3F9] px-4 py-3 text-sm font-bold transition hover:bg-[#DCEBFA]">
+                    Open the quarterly prep checklist <span aria-hidden="true">→</span>
+                </a>
+            }
+
+            <p class="mt-6 text-xs text-[#8A9BB0]">Informational aid only. Verify this deadline and form against your official BIR Form 2303 COR and issuances.</p>
+
+            <div class="mt-auto pt-8">
+                @if (Item.IsFiled)
+                {
+                    <button type="button" class="w-full rounded-full border border-[#E2E8F0] px-6 py-3.5 font-bold transition hover:bg-[#EEF3F9]" @onclick="() => OnToggleFiled.InvokeAsync(Item)">Undo “filed”</button>
+                }
+                else
+                {
+                    <button type="button" class="w-full rounded-full bg-[#ADEE68] px-6 py-3.5 font-bold text-[#001F3E] transition hover:brightness-95" @onclick="() => OnToggleFiled.InvokeAsync(Item)">Mark as filed</button>
+                }
+            </div>
+        </aside>
+    </div>
+}
+
+@code {
+    [Parameter] public Deadline? Item { get; set; }
+    [Parameter, EditorRequired] public DateOnly Today { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<Deadline> OnToggleFiled { get; set; }
+}

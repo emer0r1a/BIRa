@@ -1,0 +1,71 @@
+<div>
+    <div class="flex items-center justify-between gap-2">
+        <h3 class="text-xl font-extrabold tracking-tight">@Month.ToString("MMMM yyyy")</h3>
+        <div class="flex items-center gap-1">
+            <button type="button" class="grid h-9 w-9 place-items-center rounded-full border border-[#E2E8F0] transition hover:bg-[#EEF3F9]" aria-label="Previous month" @onclick="OnPrev">‹</button>
+            <button type="button" class="rounded-full border border-[#E2E8F0] px-3 py-1.5 text-xs font-bold transition hover:bg-[#EEF3F9]" @onclick="OnToday">Today</button>
+            <button type="button" class="grid h-9 w-9 place-items-center rounded-full border border-[#E2E8F0] transition hover:bg-[#EEF3F9]" aria-label="Next month" @onclick="OnNext">›</button>
+        </div>
+    </div>
+
+    <div class="mt-4 grid grid-cols-7 gap-1 text-center">
+        @foreach (var name in new[] { "S", "M", "T", "W", "T", "F", "S" })
+        {
+            <span class="py-1 text-[11px] font-bold text-[#8A9BB0]" aria-hidden="true">@name</span>
+        }
+
+        @for (var blank = 0; blank < (int)Month.DayOfWeek; blank++)
+        {
+            <span aria-hidden="true"></span>
+        }
+
+        @for (var day = 1; day <= DateTime.DaysInMonth(Month.Year, Month.Month); day++)
+        {
+            var date = new DateOnly(Month.Year, Month.Month, day);
+            var statuses = Deadlines.Where(d => d.DueDate == date).Select(d => d.StatusOn(Today)).Distinct().Take(3).ToList();
+            var holiday = PhCalendar.HolidayName(date);
+            var selected = Selected == date;
+            var cell = selected ? "bg-[#001F3E] text-white"
+                     : holiday is not null ? "bg-[#EEF3F9] text-[#5B6B7F] underline decoration-dotted"
+                     : PhCalendar.IsWeekend(date) ? "text-[#8A9BB0] hover:bg-[#F6F9FC]"
+                     : "hover:bg-[#F6F9FC]";
+
+            <button type="button"
+                    class="flex h-11 flex-col items-center justify-center gap-0.5 rounded-xl text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-[#0F69C5] @cell @(date == Today ? "ring-2 ring-[#0F69C5]" : "")"
+                    title="@holiday"
+                    aria-label="@(date.ToString("MMMM d")), @statuses.Count deadline(s)@(holiday is not null ? ", " + holiday : "")"
+                    aria-pressed="@(selected ? "true" : "false")"
+                    @onclick="() => OnSelect.InvokeAsync(date)">
+                <span class="leading-none">@day</span>
+                <span class="flex h-1.5 gap-0.5" aria-hidden="true">
+                    @foreach (var s in statuses)
+                    {
+                        <span class="h-1.5 w-1.5 rounded-full @s.DotClass()"></span>
+                    }
+                </span>
+            </button>
+        }
+    </div>
+
+    <ul class="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#5B6B7F]">
+        @foreach (var s in Enum.GetValues<DeadlineStatus>())
+        {
+            <li class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full @s.DotClass()"></span>@s.Label()</li>
+        }
+        <li class="flex items-center gap-1.5"><span class="underline decoration-dotted">12</span>Holiday</li>
+    </ul>
+    <p class="mt-2 text-xs text-[#8A9BB0]">Sample holiday list. Movable holidays and BIR advisories aren’t included.</p>
+</div>
+
+@code {
+    /// <summary>Any date in the month to show.</summary>
+    [Parameter, EditorRequired] public DateOnly Month { get; set; }
+    [Parameter, EditorRequired] public DateOnly Today { get; set; }
+    [Parameter, EditorRequired] public IEnumerable<Deadline> Deadlines { get; set; } = Enumerable.Empty<Deadline>();
+    [Parameter] public DateOnly? Selected { get; set; }
+
+    [Parameter] public EventCallback OnPrev { get; set; }
+    [Parameter] public EventCallback OnNext { get; set; }
+    [Parameter] public EventCallback OnToday { get; set; }
+    [Parameter] public EventCallback<DateOnly> OnSelect { get; set; }
+}
