@@ -1,0 +1,77 @@
+<article class="flex flex-col rounded-[1.75rem] bg-white p-6 @(IsCurrent ? "border-2 border-[#0F69C5]" : "border border-[#E2E8F0]")">
+    <div class="flex items-start justify-between gap-3">
+        <div class="flex min-w-0 items-center gap-3">
+            <Avatar Name="@Item.Name" Class="@($"h-12 w-12 text-base {Item.AvatarClass}")" />
+            <div class="min-w-0 leading-tight">
+                <h3 class="truncate text-xl font-extrabold tracking-tight">@Item.Name</h3>
+                <p class="text-sm text-[#5B6B7F]">@Item.Kind</p>
+            </div>
+        </div>
+        @if (IsCurrent)
+        {
+            <span class="shrink-0 rounded-full bg-[#ADEE68] px-3 py-1 text-xs font-bold text-[#001F3E]">Viewing now</span>
+        }
+    </div>
+
+    <ul class="mt-5 flex flex-wrap gap-2 text-xs font-bold">
+        <li class="rounded-full bg-[#EEF3F9] px-3 py-1.5">@Item.Regime</li>
+        <li class="rounded-full bg-[#EEF3F9] px-3 py-1.5">@Item.TaxType</li>
+    </ul>
+
+    <dl class="mt-5 space-y-3 text-sm">
+        <div class="flex justify-between gap-4">
+            <dt class="text-[#5B6B7F]">Revenue District Office</dt>
+            <dd class="text-right font-bold">@Item.Rdo</dd>
+        </div>
+        <div class="flex items-start justify-between gap-4">
+            <dt class="text-[#5B6B7F]">Next deadline</dt>
+            <dd class="text-right">
+                @if (Next is null)
+                {
+                    <span class="font-bold">All filed</span>
+                }
+                else
+                {
+                    <span class="block font-bold">@Next.FormCode · @Next.DueDate.ToString("MMM d")</span>
+                    <span class="mt-1 inline-flex items-center gap-2 text-xs text-[#5B6B7F]">@Next.RelativeText(Today) <StatusBadge Status="Next.StatusOn(Today)" /></span>
+                }
+            </dd>
+        </div>
+    </dl>
+
+    <ul class="mt-5 grid grid-cols-3 gap-2 text-center text-xs">
+        <li class="rounded-2xl bg-[#F6F9FC] py-2.5"><span class="block text-xl font-extrabold leading-none">@Overdue</span><span class="mt-1 flex items-center justify-center gap-1.5 text-[#5B6B7F]"><span class="h-2 w-2 rounded-full @DeadlineStatus.Overdue.DotClass()"></span>Overdue</span></li>
+        <li class="rounded-2xl bg-[#F6F9FC] py-2.5"><span class="block text-xl font-extrabold leading-none">@DueSoon</span><span class="mt-1 flex items-center justify-center gap-1.5 text-[#5B6B7F]"><span class="h-2 w-2 rounded-full @DeadlineStatus.DueSoon.DotClass()"></span>Due soon</span></li>
+        <li class="rounded-2xl bg-[#F6F9FC] py-2.5"><span class="block text-xl font-extrabold leading-none">@Filed</span><span class="mt-1 flex items-center justify-center gap-1.5 text-[#5B6B7F]"><span class="h-2 w-2 rounded-full @DeadlineStatus.Filed.DotClass()"></span>Filed</span></li>
+    </ul>
+
+    <div class="mt-6 flex flex-wrap gap-2 pt-1">
+        @if (IsCurrent)
+        {
+            <button type="button" class="rounded-full bg-gradient-to-r from-[#001F3E] to-[#0F69C5] px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110" @onclick="() => OnOpenDashboard.InvokeAsync(Item)">Open dashboard</button>
+        }
+        else
+        {
+            <button type="button" class="rounded-full bg-[#0F69C5] px-5 py-2.5 text-sm font-bold text-white transition hover:brightness-110" @onclick="() => OnSwitch.InvokeAsync(Item)">Switch to this business</button>
+        }
+        <button type="button" class="rounded-full border border-[#E2E8F0] px-5 py-2.5 text-sm font-bold transition hover:bg-[#EEF3F9]" @onclick="() => OnEdit.InvokeAsync(Item)">Edit details</button>
+    </div>
+</article>
+
+@code {
+    [Parameter, EditorRequired] public Business Item { get; set; } = default!;
+    [Parameter, EditorRequired] public DateOnly Today { get; set; }
+    [Parameter] public bool IsCurrent { get; set; }
+
+    /// <summary>All of this business's deadlines.</summary>
+    [Parameter] public IReadOnlyList<Deadline> Deadlines { get; set; } = Array.Empty<Deadline>();
+
+    [Parameter] public EventCallback<Business> OnSwitch { get; set; }
+    [Parameter] public EventCallback<Business> OnOpenDashboard { get; set; }
+    [Parameter] public EventCallback<Business> OnEdit { get; set; }
+
+    private Deadline? Next => Deadlines.Where(d => !d.IsFiled).OrderBy(d => d.DueDate).FirstOrDefault();
+    private int Overdue => Deadlines.Count(d => d.StatusOn(Today) == DeadlineStatus.Overdue);
+    private int DueSoon => Deadlines.Count(d => d.StatusOn(Today) == DeadlineStatus.DueSoon);
+    private int Filed => Deadlines.Count(d => d.IsFiled);
+}

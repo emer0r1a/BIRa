@@ -1,0 +1,100 @@
+@if (Open)
+{
+    <div class="fixed inset-0 z-[60]" role="dialog" aria-modal="true" aria-labelledby="business-drawer-title">
+        <button type="button" class="absolute inset-0 bg-[#001F3E]/50" aria-label="Close" @onclick="OnClose"></button>
+
+        <aside class="absolute right-0 top-0 flex h-full w-full max-w-md flex-col overflow-y-auto bg-white p-6 shadow-2xl sm:p-8">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h2 id="business-drawer-title" class="text-3xl font-extrabold leading-tight tracking-tighter">@(Editing is null ? "Add a business" : "Edit business")</h2>
+                    <p class="mt-1 text-sm text-[#5B6B7F]">Copy these details from your Certificate of Registration (Form 2303).</p>
+                </div>
+                <button type="button" class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-[#E2E8F0] text-lg transition hover:bg-[#EEF3F9]" aria-label="Close" @onclick="OnClose">✕</button>
+            </div>
+
+            <EditForm Model="model" OnValidSubmit="SubmitAsync" class="mt-6 flex flex-1 flex-col gap-5">
+                <DataAnnotationsValidator />
+
+                <AuthField Label="Business or profile name" InputId="biz-name">
+                    <InputText id="biz-name" placeholder="e.g. Maria Reyes, Design" class="@AuthField.InputClass" @bind-Value="model.Name" />
+                    <ValidationMessage For="() => model.Name" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+                </AuthField>
+
+                <AuthField Label="Registration type" InputId="biz-kind">
+                    <InputSelect id="biz-kind" class="@AuthField.InputClass" @bind-Value="model.Kind">
+                        <option value="">Choose one</option>
+                        @foreach (var kind in BusinessOptions.Kinds)
+                        {
+                            <option value="@kind">@kind</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => model.Kind" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+                </AuthField>
+
+                <AuthField Label="Income tax regime" InputId="biz-regime" Hint="Not sure? See “Regimes in plain words” at the bottom of the page.">
+                    <InputSelect id="biz-regime" class="@AuthField.InputClass" @bind-Value="model.Regime">
+                        <option value="">Choose one</option>
+                        @foreach (var regime in BusinessOptions.Regimes)
+                        {
+                            <option value="@regime">@regime</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => model.Regime" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+                </AuthField>
+
+                <AuthField Label="Tax type" InputId="biz-tax">
+                    <InputSelect id="biz-tax" class="@AuthField.InputClass" @bind-Value="model.TaxType">
+                        <option value="">Choose one</option>
+                        @foreach (var taxType in BusinessOptions.TaxTypes)
+                        {
+                            <option value="@taxType">@taxType</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="() => model.TaxType" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+                </AuthField>
+
+                <div class="grid grid-cols-[7rem_1fr] gap-3">
+                    <AuthField Label="RDO code" InputId="biz-rdo">
+                        <InputText id="biz-rdo" inputmode="numeric" maxlength="3" placeholder="083" class="@AuthField.InputClass" @bind-Value="model.RdoCode" />
+                        <ValidationMessage For="() => model.RdoCode" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+                    </AuthField>
+                    <AuthField Label="Office name (optional)" InputId="biz-rdo-name">
+                        <InputText id="biz-rdo-name" placeholder="Cebu City North" class="@AuthField.InputClass" @bind-Value="model.RdoName" />
+                        <ValidationMessage For="() => model.RdoName" class="mt-1.5 block text-xs font-semibold text-[#ED3F27]" />
+                    </AuthField>
+                </div>
+
+                <div class="mt-auto space-y-3 pt-4">
+                    <AuthSubmit Text="@(Editing is null ? "Add business" : "Save changes")" />
+                    <button type="button" class="w-full rounded-full border border-[#E2E8F0] px-6 py-3 font-bold transition hover:bg-[#EEF3F9]" @onclick="OnClose">Cancel</button>
+                </div>
+            </EditForm>
+        </aside>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Open { get; set; }
+
+    /// <summary>The business being edited, or null when adding a new one.</summary>
+    [Parameter] public Business? Editing { get; set; }
+
+    [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public EventCallback<BusinessFormModel> OnSave { get; set; }
+
+    private BusinessFormModel model = new();
+    private bool wasOpen;
+
+    protected override void OnParametersSet()
+    {
+        // Start the form fresh each time the drawer opens.
+        if (Open && !wasOpen)
+        {
+            model = Editing is null ? new BusinessFormModel() : BusinessFormModel.From(Editing);
+        }
+
+        wasOpen = Open;
+    }
+
+    private Task SubmitAsync() => OnSave.InvokeAsync(model);
+}
