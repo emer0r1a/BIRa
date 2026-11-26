@@ -1,0 +1,23 @@
+<div class="@Class" aria-hidden="true">
+  <div class="relative h-24 w-24 sm:h-28 sm:w-28">
+    <svg viewBox="0 0 120 120" class="h-full w-full animate-[spin_18s_linear_infinite] motion-reduce:animate-none">
+        <defs>
+            <linearGradient id="badgeGrad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0" stop-color="#ADEE68" />
+                <stop offset="1" stop-color="#1FBCCF" />
+            </linearGradient>
+            <path id="badgePath" d="M60 60m-42 0a42 42 0 1 1 84 0a42 42 0 1 1-84 0" />
+        </defs>
+        <circle cx="60" cy="60" r="58" fill="url(#badgeGrad)" />
+        <text font-size="10.5" font-weight="800" fill="#001F3E" letter-spacing="2.2">
+            <textPath href="#badgePath">@Text</textPath>
+        </text>
+    </svg>
+    <span class="absolute inset-0 grid place-items-center text-3xl font-bold text-[#001F3E]">↓</span>
+  </div>
+</div>
+
+@code {
+    [Parameter] public string Text { get; set; } = "SEE YOUR DEADLINES • FILE WITH CONFIDENCE •";
+    [Parameter] public string Class { get; set; } = "";
+}

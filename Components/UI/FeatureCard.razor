@@ -1,0 +1,19 @@
+<article class="flex flex-col justify-between gap-6 overflow-hidden rounded-[1.75rem] border border-[#E2E8F0] p-6 sm:p-7 @Class">
+    <div>
+        <span class="inline-block rounded-full border border-[#001F3E]/10 bg-white/85 px-3 py-1 text-xs font-bold text-[#001F3E]">@Tag</span>
+        <h3 class="mt-4 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">@Title</h3>
+        <p class="mt-2 max-w-md text-sm leading-relaxed opacity-80">@Blurb</p>
+    </div>
+    @ChildContent
+</article>
+
+@code {
+    [Parameter, EditorRequired] public string Title { get; set; } = "";
+    [Parameter] public string Tag { get; set; } = "";
+    [Parameter] public string Blurb { get; set; } = "";
+
+    /// <summary>Background, text colour and grid span, e.g. "bg-[#001F3E] text-white lg:col-span-4".</summary>
+    [Parameter] public string Class { get; set; } = "bg-white text-[#001F3E]";
+
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}
